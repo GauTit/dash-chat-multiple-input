@@ -91,7 +91,7 @@ const ChatComponent = ({
     const userBubbleStyle = { ...defaultUserBubbleStyle, ...userBubbleStyleProp };
     const assistantBubbleStyle = { ...defaultAssistantBubbleStyle, ...assistantBubbleStyleProp };
     const [currentMessage, setCurrentMessage] = useState("");
-    const [attachment, setAttachment] = useState("");
+    const [attachment, setAttachment] = useState([]);
     const [localMessages, setLocalMessages] = useState([]);
     const [showTyping, setShowTyping] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -176,19 +176,27 @@ const ChatComponent = ({
     };
 
     const handleSendMessage = async () => {
-        if (currentMessage.trim() || attachment) {
+        const hasAttachments = Array.isArray(attachment) && attachment.length > 0;
+
+        if (currentMessage.trim() || hasAttachments) {
             let content;
 
-            if (attachment) {
-                const base64File = await convertFileToBase64(attachment);
+            if (hasAttachments) {
+                // Convertit tous les fichiers en base64 en parallèle
+                const attachmentBlocks = await Promise.all(
+                    attachment.map(async (file) => {
+                        const base64File = await convertFileToBase64(file);
+                        return {
+                            type: "attachment",
+                            file: base64File,
+                            fileName: file.name,
+                            fileType: file.type,
+                        };
+                    })
+                );
                 content = [
                     { type: "text", text: currentMessage.trim() },
-                    {
-                        type: "attachment",
-                        file: base64File,
-                        fileName: attachment.name,
-                        fileType: attachment.type
-                    },
+                    ...attachmentBlocks,
                 ];
             } else {
                 content = currentMessage.trim();
@@ -209,7 +217,7 @@ const ChatComponent = ({
 
             setShowTyping(true);
             setCurrentMessage("");
-            setAttachment("");
+            setAttachment([]);
         }
     };
 

@@ -80,36 +80,39 @@ const MessageInput = ({
     },
 }) => {
     const fileInputRef = useRef(null);
-    const [selectedFile, setSelectedFile] = useState(null);
-    const [filePreview, setFilePreview] = useState(null);
+    const [selectedFiles, setSelectedFiles] = useState([]);
 
     const handleFileUpload = (event) => {
-        const file = event.target.files[0];
-        const fileType = file.type;
+        const newFiles = Array.from(event.target.files);
+        if (newFiles.length === 0) return;
 
-        if (file) {
-            setSelectedFile(file);
-            setAttachment(file);
+        // Mode cumulatif : on append aux fichiers déjà sélectionnés
+        const updated = [...selectedFiles, ...newFiles];
+        setSelectedFiles(updated);
+        setAttachment(updated);
 
-            if (fileType.startsWith("image/")) {
-                setFilePreview(URL.createObjectURL(file));
-            } else {
-                setFilePreview(file.name);
-            }
-        }
+        // Reset l'input pour permettre de re-sélectionner le même fichier
+        event.target.value = "";
     };
 
-    const handleRemoveFile = () => {
-        setSelectedFile(null);
-        setFilePreview(null);
+    const handleRemoveFile = (indexToRemove) => {
+        const updated = selectedFiles.filter((_, i) => i !== indexToRemove);
+        setSelectedFiles(updated);
+        setAttachment(updated);
     };
 
     const handleSend = () => {
-        if (value.trim() || selectedFile) {
-            onSend(value.trim(), selectedFile);
-            setSelectedFile(null);
-            setFilePreview(null);
+        if (value.trim() || selectedFiles.length > 0) {
+            onSend(value.trim(), selectedFiles);
+            setSelectedFiles([]);
         }
+    };
+
+    const getFilePreview = (file) => {
+        if (file.type.startsWith("image/")) {
+            return URL.createObjectURL(file);
+        }
+        return file.name;
     };
 
     const renderButtonContent = ({ icon, label, icon_position }) => {
@@ -127,27 +130,37 @@ const MessageInput = ({
 
     return (
         <div className="message-input-container" style={customStyles}>
-            {filePreview && (
-                <div className="file-preview-container">
-                    <button
-                        className="remove-file-button"
-                        onClick={handleRemoveFile}
-                        data-testid="file-remove-button"
-                    >
-                        <X size={10} />
-                    </button>
-                    {(
-                        selectedFile.type === "application/pdf" ||
-                        selectedFile.type === "application/msword" ||
-                        selectedFile.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                    ) ? (
-                        <div className="file-preview">
-                            <FileText size={15} />
-                            <p className="file-name-preview">{selectedFile.name}</p>
-                        </div>
-                    ) : selectedFile.type.startsWith("image/") ? (
-                        <img src={filePreview} alt="Preview" className="file-preview-image" />
-                    ) : <p className="file-name-preview">{selectedFile.name} unsupported</p>}
+            {selectedFiles.length > 0 && (
+                <div className="file-preview-list">
+                    {selectedFiles.map((file, index) => {
+                        const preview = getFilePreview(file);
+                        const isDoc = (
+                            file.type === "application/pdf" ||
+                            file.type === "application/msword" ||
+                            file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                        );
+                        return (
+                            <div className="file-preview-container" key={`${file.name}-${index}`}>
+                                <button
+                                    className="remove-file-button"
+                                    onClick={() => handleRemoveFile(index)}
+                                    data-testid={`file-remove-button-${index}`}
+                                >
+                                    <X size={10} />
+                                </button>
+                                {isDoc ? (
+                                    <div className="file-preview">
+                                        <FileText size={15} />
+                                        <p className="file-name-preview">{file.name}</p>
+                                    </div>
+                                ) : file.type.startsWith("image/") ? (
+                                    <img src={preview} alt="Preview" className="file-preview-image" />
+                                ) : (
+                                    <p className="file-name-preview">{file.name} unsupported</p>
+                                )}
+                            </div>
+                        );
+                    })}
                 </div>
             )}
             <textarea
@@ -181,6 +194,7 @@ const MessageInput = ({
                         <input
                             type="file"
                             ref={fileInputRef}
+                            multiple
                             style={{ display: "none" }}
                             accept={Array.isArray(accept) ? accept.join(",") : accept}
                             onChange={handleFileUpload}
