@@ -1,7 +1,7 @@
 /* eslint no-magic-numbers: 0 */
 import React, { useState } from 'react';
 
-import { ChatComponent } from '../lib';
+import { ChatComponentMulti } from '../lib';
 
 const App = () => {
 
@@ -12,7 +12,7 @@ const App = () => {
 
     return (
         <div>
-            <ChatComponent
+            <ChatComponentMulti
                 setProps={setProps}
                 {...state}
             />

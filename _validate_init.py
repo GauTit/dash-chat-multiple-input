@@ -10,7 +10,7 @@ import sys
 import importlib
 
 
-components_package = "dash_chat"
+components_package = "dash_chat_multi"
 
 components_lib = importlib.import_module(components_package)
 

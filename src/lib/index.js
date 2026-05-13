@@ -1,6 +1,6 @@
 /* eslint-disable import/prefer-default-export */
-import ChatComponent from './components/ChatComponent';
+import ChatComponentMulti from './components/ChatComponentMulti';
 
 export {
-    ChatComponent
+    ChatComponentMulti
 };

@@ -81,18 +81,64 @@ const MessageInput = ({
 }) => {
     const fileInputRef = useRef(null);
     const [selectedFiles, setSelectedFiles] = useState([]);
+    const [isDragging, setIsDragging] = useState(false);
 
-    const handleFileUpload = (event) => {
-        const newFiles = Array.from(event.target.files);
+    const addFiles = (newFiles) => {
         if (newFiles.length === 0) return;
-
-        // Mode cumulatif : on append aux fichiers déjà sélectionnés
         const updated = [...selectedFiles, ...newFiles];
         setSelectedFiles(updated);
         setAttachment(updated);
+    };
 
+    const handleFileUpload = (event) => {
+        addFiles(Array.from(event.target.files));
         // Reset l'input pour permettre de re-sélectionner le même fichier
         event.target.value = "";
+    };
+
+    const filterByAccept = (files) => {
+        if (!accept || accept === "*/*") return files;
+        const acceptList = Array.isArray(accept) ? accept : accept.split(",");
+        const normalized = acceptList.map((t) => t.trim().toLowerCase()).filter(Boolean);
+        if (normalized.length === 0 || normalized.includes("*/*")) return files;
+        return files.filter((f) => {
+            const fileType = (f.type || "").toLowerCase();
+            const fileName = f.name.toLowerCase();
+            return normalized.some((t) => {
+                if (t.endsWith("/*")) return fileType.startsWith(t.slice(0, -1));
+                if (t.startsWith(".")) return fileName.endsWith(t);
+                return fileType === t;
+            });
+        });
+    };
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+    };
+
+    const handleDragEnter = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (showTyping) return;
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        // Ignore les transitions vers un enfant du container
+        if (e.currentTarget.contains(e.relatedTarget)) return;
+        setIsDragging(false);
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+        if (showTyping) return;
+        const dropped = Array.from(e.dataTransfer.files || []);
+        addFiles(filterByAccept(dropped));
     };
 
     const handleRemoveFile = (indexToRemove) => {
@@ -129,7 +175,14 @@ const MessageInput = ({
     };
 
     return (
-        <div className="message-input-container" style={customStyles}>
+        <div
+            className={`message-input-container ${isDragging ? "dragging" : ""}`}
+            style={customStyles}
+            onDragOver={handleDragOver}
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+        >
             {selectedFiles.length > 0 && (
                 <div className="file-preview-list">
                     {selectedFiles.map((file, index) => {

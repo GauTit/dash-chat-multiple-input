@@ -1,7 +1,7 @@
 /**
  * Example Usage:
  * ```
- * <ChatComponent
+ * <ChatComponentMulti
  *     id="chat"
  *     messages={[
  *         { role: "assistant", content: "Hello! How can I assist you today?" }
@@ -40,7 +40,7 @@ const defaultAssistantBubbleStyle = {
 };
 
 /**
- * ChatComponent - A React-based chat interface with customizable styles and typing indicators.
+ * ChatComponentMulti - A React-based chat interface with customizable styles and typing indicators.
  * * This component provides a chat interface with support for:
  * - Displaying messages exchanged between 2 users typically a user and an assistant.
  * - Customizable themes and styles for the chat UI.
@@ -48,7 +48,7 @@ const defaultAssistantBubbleStyle = {
  * - Integration with Dash via the `setProps` callback for state management.
 */
 
-const ChatComponent = ({
+const ChatComponentMulti = ({
     /**
      * allowing snake_case to support Python's naming convention
      * except for setProps which is automatically set by dash and
@@ -317,7 +317,7 @@ const ChatComponent = ({
     );
 };
 
-ChatComponent.propTypes = {
+ChatComponentMulti.propTypes = {
     /**
      * The ID of this component, used to identify dash components
      * in callbacks. The ID needs to be unique across all of the
@@ -441,4 +441,4 @@ ChatComponent.propTypes = {
     }),
 };
 
-export default ChatComponent;
+export default ChatComponentMulti;

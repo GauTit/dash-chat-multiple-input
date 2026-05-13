@@ -19,6 +19,13 @@
     margin-top: 10px;
     border: 1px solid;
     border-radius: 10px;
+    transition: outline-color 0.15s ease, background-color 0.15s ease;
+}
+
+.message-input-container.dragging {
+    outline: 2px dashed #007bff;
+    outline-offset: -4px;
+    background-color: rgba(0, 123, 255, 0.06);
 }
 
 .message-input-container .disabled {

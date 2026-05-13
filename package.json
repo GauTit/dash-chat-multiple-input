@@ -1,7 +1,7 @@
 {
-  "name": "dash-chat",
+  "name": "dash-chat-multi",
   "version": "0.3.0",
-  "description": "A chat component for Dash",
+  "description": "A chat component for Dash (multi-file + drag-and-drop fork)",
   "repository": {
     "type": "git",
     "url": "git://github.com/gbolly/dash-chat/dash-chat.git"
@@ -16,7 +16,7 @@
     "validate-init": "python _validate_init.py",
     "prepublishOnly": "npm run validate-init",
     "build:js": "webpack --mode production",
-    "build:py": "dash-generate-components ./src/lib/components dash_chat -p package-info.json",
+    "build:py": "dash-generate-components ./src/lib/components dash_chat_multi -p package-info.json",
     "build:py-activated": "(. venv/bin/activate || venv\\scripts\\activate && npm run build:py)",
     "build": "npm run build:js && npm run build:py",
     "build:activated": "npm run build:js && npm run build:py-activated",
