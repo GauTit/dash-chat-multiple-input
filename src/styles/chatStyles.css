@@ -23,9 +23,8 @@
 }
 
 .message-input-container.dragging {
-    outline: 2px dashed #007bff;
+    outline: 2px dashed #6b218d;
     outline-offset: -4px;
-    background-color: rgba(0, 123, 255, 0.06);
 }
 
 .message-input-container .disabled {
